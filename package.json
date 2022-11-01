@@ -1,6 +1,6 @@
 {
   "name": "dcmjs-ecg",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "DICOM electrocardiography (ECG) rendering for Node.js and browser using dcmjs",
   "main": "build/dcmjs-ecg.min.js",
   "module": "build/dcmjs-ecg.min.js",
