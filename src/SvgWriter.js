@@ -75,18 +75,31 @@ class SvgWriter {
     lineJoin = lineJoin || 'round';
     lineCap = lineCap || 'round';
 
-    const p = Array.isArray(path) ? path : [path];
+    const pathArray = Array.isArray(path) ? path : [path];
+    const pathData = [];
+    let lastX = undefined;
+    let lastY = undefined;
+
+    pathArray.forEach((n) => {
+      if (n.x1 !== lastX && n.y1 !== lastY) {
+        pathData.push(
+          `M ${this._fixDecimal(n.x1)} ${this._fixDecimal(n.y1)} L ${this._fixDecimal(
+            n.x2
+          )} ${this._fixDecimal(n.y2)}`
+        );
+        lastX = n.x2;
+        lastY = n.y2;
+      } else {
+        pathData.push(`L ${this._fixDecimal(n.x2)} ${this._fixDecimal(n.y2)}`);
+      }
+    });
+
     this.svg.push(
-      `<path d="${p
-        .map(
-          (i) =>
-            `M ${this._fixDecimal(i.x1)} ${this._fixDecimal(i.y1)} L ${this._fixDecimal(
-              i.x2
-            )} ${this._fixDecimal(i.y2)}`
-        )
-        .join(' ')}" stroke="rgba(${lineColor.r}, ${lineColor.g}, ${lineColor.b}, ${
+      `<path d="${pathData.join(' ')}" stroke="rgba(${lineColor.r}, ${lineColor.g}, ${
+        lineColor.b
+      }, ${
         lineColor.a
-      })" stroke-width="${lineWidth}" stroke-linejoin="${lineJoin}" stroke-linecap="${lineCap}"/>`
+      })" stroke-width="${lineWidth}" stroke-linejoin="${lineJoin}" stroke-linecap="${lineCap}" fill="none"/>`
     );
   }
 

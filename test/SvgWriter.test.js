@@ -84,12 +84,16 @@ describe('SvgWriter', () => {
       90
     );
     svg.path({ x1: 10, y1: 20, x2: 30, y2: 40 });
+    svg.path([
+      { x1: 10, y1: 20, x2: 30, y2: 40 },
+      { x1: 30, y1: 40, x2: 20, y2: 10 },
+    ]);
     parser.parseString(svg.toXmlString(), (err, result) => {
       expect(err).to.be.null;
       expect(result).to.not.be.undefined;
       expect(result.svg).to.exist;
 
-      expect(result.svg.path.length).to.be.eq(2);
+      expect(result.svg.path.length).to.be.eq(3);
       expect(result.svg.path[0].$.d).to.be.eq('M 10 20 L 30 40 M 40 30 L 20 10');
       expect(result.svg.path[0].$.stroke).to.be.eq('rgba(50, 60, 70, 80)');
       expect(result.svg.path[0].$['stroke-width']).to.be.eq('90');
@@ -97,6 +101,10 @@ describe('SvgWriter', () => {
       expect(result.svg.path[1].$.d).to.be.eq('M 10 20 L 30 40');
       expect(result.svg.path[1].$.stroke).to.be.eq('rgba(0, 0, 0, 255)');
       expect(result.svg.path[1].$['stroke-width']).to.be.eq('1');
+
+      expect(result.svg.path[2].$.d).to.be.eq('M 10 20 L 30 40 L 20 10');
+      expect(result.svg.path[2].$.stroke).to.be.eq('rgba(0, 0, 0, 255)');
+      expect(result.svg.path[2].$['stroke-width']).to.be.eq('1');
     });
   });
 

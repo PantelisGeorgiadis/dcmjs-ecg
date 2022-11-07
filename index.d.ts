@@ -1,3 +1,5 @@
+import log = require('loglevel');
+
 declare class DicomEcg {
   /**
    * Creates an instance of DicomEcg.
@@ -57,4 +59,4 @@ declare class DicomEcg {
  */
 declare const version: string;
 
-export { DicomEcg, version };
+export { DicomEcg, log, version };

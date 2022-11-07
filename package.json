@@ -1,6 +1,6 @@
 {
   "name": "dcmjs-ecg",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "DICOM electrocardiography (ECG) rendering for Node.js and browser using dcmjs",
   "main": "build/dcmjs-ecg.min.js",
   "module": "build/dcmjs-ecg.min.js",
@@ -43,7 +43,9 @@
   },
   "homepage": "https://github.com/PantelisGeorgiadis/dcmjs-ecg",
   "dependencies": {
-    "dcmjs": "^0.29.0"
+    "dcmjs": "^0.29.0",
+    "loglevel": "^1.8.0",
+    "loglevel-plugin-prefix": "^0.8.4"
   },
   "devDependencies": {
     "browserify": "^17.0.0",
@@ -51,7 +53,7 @@
     "chai": "^4.3.6",
     "copy-webpack-plugin": "^11.0.0",
     "docdash": "^1.2.0",
-    "eslint": "^8.26.0",
+    "eslint": "^8.27.0",
     "jsdoc": "^3.6.11",
     "karma": "^6.4.1",
     "karma-browserify": "^8.1.0",

@@ -1,4 +1,5 @@
 const SvgWriter = require('./SvgWriter');
+const log = require('./log');
 
 const dcmjs = require('dcmjs');
 const { DicomMetaDictionary, DicomMessage, ReadBufferStream, WriteBufferStream } = dcmjs.data;
@@ -247,16 +248,18 @@ class DicomEcg {
     // Extract annotation
     const annotation = this._extractAnnotation();
     if (annotation.length > 0) {
-      info.push({ key: 'annotation', value: annotation });
+      info.push({ key: 'Annotation', value: annotation });
     }
 
     // Additional info
-    info.push({ key: 'samplingFrequency', value: waveform.samplingFrequency, unit: 'Hz' });
+    info.push({ key: 'Sampling Frequency', value: waveform.samplingFrequency, unit: 'Hz' });
     info.push({
-      key: 'duration',
+      key: 'Duration',
       value: waveform.samples / waveform.samplingFrequency,
       unit: 'sec',
     });
+    info.push({ key: 'Speed', value: opts.millimeterPerSecond, unit: 'mm/sec' });
+    info.push({ key: 'Amplitude', value: opts.millimeterPerMillivolt, unit: 'mm/mV' });
 
     // Render
     const leads = waveform.leads.length;
@@ -269,13 +272,8 @@ class DicomEcg {
     const leadHeight = Math.trunc(height / leads);
     const svgWriter = new SvgWriter(width, height, RenderingDefaults.DefaultPaperBackgroundColor);
 
-    // Render grid
     for (let i = 0; i < leads; i++) {
       this._renderLeadGrid(svgWriter, i, width, leadHeight);
-    }
-
-    // Render lead signal and title
-    for (let i = 0; i < leads; i++) {
       this._renderLeadSignal(svgWriter, waveform, waveform.leads[i], i, width, leadHeight);
       this._renderLeadTitle(svgWriter, waveform.leads[i], i, leadHeight);
     }
@@ -337,34 +335,49 @@ class DicomEcg {
    * @throws Error if waveform bits stored definition value is not supported.
    */
   _calculateLeads(waveform, opts) {
-    const factor = new Array(waveform.channels).fill(1.0);
-    const baseline = new Array(waveform.channels).fill(0.0);
+    const channelDefinitionSequence = waveform.channelDefinitionSequence;
+    if (
+      channelDefinitionSequence === undefined ||
+      !Array.isArray(channelDefinitionSequence) ||
+      channelDefinitionSequence.length === 0
+    ) {
+      throw new Error('ChannelDefinitionSequence is empty');
+    }
+
+    if (waveform.channels !== channelDefinitionSequence.length) {
+      log.warn(
+        `Waveform number of channels [${waveform.channels}] are not equal to channel definition sequence length [${channelDefinitionSequence.length}]. Proceeding with channel definition sequence length.`
+      );
+    }
+
+    const channels = channelDefinitionSequence.length;
+    const factor = new Array(channels).fill(1.0);
+    const baseline = new Array(channels).fill(0.0);
 
     const units = [];
     const sources = [];
-    for (let i = 0; i < waveform.channels; i++) {
-      const definitionSequenceItem = waveform.channelDefinitionSequence[i];
-      if (definitionSequenceItem !== undefined) {
-        if (definitionSequenceItem.WaveformBitsStored !== 16) {
+    channelDefinitionSequence.forEach((channelDefinitionSequenceItem, i) => {
+      if (channelDefinitionSequenceItem !== undefined) {
+        if (channelDefinitionSequenceItem.WaveformBitsStored !== 16) {
           throw new Error(
-            `Waveform bits stored definition is not supported [${definitionSequenceItem.WaveformBitsStored}]`
+            `Waveform bits stored definition is not supported [${channelDefinitionSequenceItem.WaveformBitsStored}]`
           );
         }
 
         if (
-          definitionSequenceItem.ChannelSensitivity !== undefined &&
-          definitionSequenceItem.ChannelSensitivityCorrectionFactor !== undefined
+          channelDefinitionSequenceItem.ChannelSensitivity !== undefined &&
+          channelDefinitionSequenceItem.ChannelSensitivityCorrectionFactor !== undefined
         ) {
           factor[i] =
-            definitionSequenceItem.ChannelSensitivity *
-            definitionSequenceItem.ChannelSensitivityCorrectionFactor;
+            channelDefinitionSequenceItem.ChannelSensitivity *
+            channelDefinitionSequenceItem.ChannelSensitivityCorrectionFactor;
         }
-        if (definitionSequenceItem.ChannelBaseline !== undefined) {
-          baseline[i] = definitionSequenceItem.ChannelBaseline;
+        if (channelDefinitionSequenceItem.ChannelBaseline !== undefined) {
+          baseline[i] = channelDefinitionSequenceItem.ChannelBaseline;
         }
 
         const channelSensitivityUnitsSequence =
-          definitionSequenceItem.ChannelSensitivityUnitsSequence;
+          channelDefinitionSequenceItem.ChannelSensitivityUnitsSequence;
         if (
           channelSensitivityUnitsSequence !== undefined &&
           Array.isArray(channelSensitivityUnitsSequence) &&
@@ -376,7 +389,7 @@ class DicomEcg {
           }
         }
 
-        const channelSourceSequence = definitionSequenceItem.ChannelSourceSequence;
+        const channelSourceSequence = channelDefinitionSequenceItem.ChannelSourceSequence;
         if (
           channelSourceSequence !== undefined &&
           Array.isArray(channelSourceSequence) &&
@@ -389,7 +402,7 @@ class DicomEcg {
           });
         }
       }
-    }
+    });
 
     waveform.leads = [];
     const waveformDataBuffer = new Uint8Array(waveform.waveformData.find((o) => o));
@@ -404,8 +417,7 @@ class DicomEcg {
     // Split to channels
     let signals = waveformData.reduce(
       (rows, key, index) =>
-        (index % waveform.channels === 0 ? rows.push([key]) : rows[rows.length - 1].push(key)) &&
-        rows,
+        (index % channels === 0 ? rows.push([key]) : rows[rows.length - 1].push(key)) && rows,
       []
     );
 
@@ -413,7 +425,7 @@ class DicomEcg {
     signals = signals[0].map((x, i) => signals.map((x) => x[i]));
 
     // Apply baseline and factor
-    for (let i = 0; i < waveform.channels; i++) {
+    for (let i = 0; i < channels; i++) {
       for (let j = 0; j < signals[i].length; j++) {
         signals[i][j] = (signals[i][j] + baseline[i]) * factor[i];
       }
@@ -422,21 +434,21 @@ class DicomEcg {
     // Filter
     if (opts.applyLowPassFilter === true) {
       const cutoffFrequency = 40.0;
-      for (let i = 0; i < waveform.channels; i++) {
+      for (let i = 0; i < channels; i++) {
         this._lowPassFilter(signals[i], cutoffFrequency, waveform.samplingFrequency, 1);
       }
     }
 
     // Convert to millivolts
     const millivolts = { uV: 1000.0, mV: 1.0 };
-    for (let i = 0; i < waveform.channels; i++) {
+    for (let i = 0; i < channels; i++) {
       for (let j = 0; j < signals[i].length; j++) {
         signals[i][j] = signals[i][j] / millivolts[units[i]];
       }
     }
 
     // Find min/max and assign signal and source
-    for (let i = 0; i < waveform.channels; i++) {
+    for (let i = 0; i < channels; i++) {
       waveform.leads.push({
         min: Math.min(...signals[i]),
         max: Math.max(...signals[i]),
@@ -697,7 +709,7 @@ class DicomEcg {
     svgWriter.text(
       2.0,
       leadIndex * renderLeadHeight + 10,
-      lead.source,
+      lead.source ? lead.source.replace(/[^a-zA-Z ]/g, '') : '',
       RenderingDefaults.DefaultTextColor,
       10,
       'bold'

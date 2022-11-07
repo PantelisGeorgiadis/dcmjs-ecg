@@ -1,5 +1,8 @@
 import { expectType, expectError } from 'tsd';
-import { DicomEcg, version } from '.';
+import { DicomEcg, log, version } from '.';
+
+// log
+expectType<void>(log.error('error'));
 
 // version
 expectType<string>(version);

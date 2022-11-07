@@ -70,11 +70,15 @@
 
     function renderEcg(opts) {
       try {
+        opts.infoTextElement.innerHTML = '';
+        opts.imageElement.width = 0;
+        opts.imageElement.height = 0;
+        opts.imageElement.src = '';
+
         const t0 = performance.now();
 
         const renderingResult = opts.ecg.render({
           applyLowPassFilter: true,
-          printInfoFooter: true,
         });
 
         const t1 = performance.now();
@@ -87,7 +91,6 @@
 
         const t2 = performance.now();
 
-        opts.infoTextElement.innerHTML = '';
         console.log(
           `ECG info:\n${renderingResult.info
             .map(

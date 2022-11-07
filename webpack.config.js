@@ -23,7 +23,7 @@ const getBanner = () => {
   return (
     `/*! ${pkg.name} - ${pkg.version} - ` +
     `${getCurrentDate()} ` +
-    `| (c) 2021-2022 ${pkg.author} | ${pkg.homepage} */`
+    `| (c) 2022 ${pkg.author} | ${pkg.homepage} */`
   );
 };
 
@@ -73,7 +73,4 @@ module.exports = {
       ],
     }),
   ],
-  node: {
-    __dirname: false,
-  },
 };

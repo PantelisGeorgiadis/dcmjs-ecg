@@ -156,9 +156,9 @@ describe('DicomEcg', () => {
     const ret = ecg.render();
 
     expect(ret.info.find((i) => i.key === 'QRS Duration').value).to.be.eq('120');
-    expect(ret.info.find((i) => i.key === 'samplingFrequency').value).to.be.eq(2);
-    expect(ret.info.find((i) => i.key === 'duration').value).to.be.eq(2 / 2);
-    expect(ret.info.find((i) => i.key === 'annotation').value[0]).to.be.eq('ECG NORMAL');
+    expect(ret.info.find((i) => i.key === 'Sampling Frequency').value).to.be.eq(2);
+    expect(ret.info.find((i) => i.key === 'Duration').value).to.be.eq(2 / 2);
+    expect(ret.info.find((i) => i.key === 'Annotation').value[0]).to.be.eq('ECG NORMAL');
 
     parser.parseString(ret.svg, (err, result) => {
       expect(err).to.be.null;
