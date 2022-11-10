@@ -533,11 +533,11 @@ class DicomEcg {
         });
       }
     });
-    const prInterval = info.find((i) => i.key === 'PR Interval');
-    if (!info.find((i) => i.key === 'VRate') && prInterval) {
+    const rrInterval = info.find((i) => i.key === 'RR Interval');
+    if (!info.find((i) => i.key === 'VRate') && rrInterval) {
       info.push({
         key: 'VRate',
-        value: Math.trunc(((60.0 / waveform.duration) * waveform.samples) / prInterval.value),
+        value: Math.trunc(((60.0 / waveform.duration) * waveform.samples) / rrInterval.value),
         unit: 'BPM',
       });
     }
