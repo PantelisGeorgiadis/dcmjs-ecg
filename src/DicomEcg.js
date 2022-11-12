@@ -267,7 +267,7 @@ class DicomEcg {
       (opts.millimeterPerSecond * PixelsPerMm * waveform.samples) / waveform.samplingFrequency
     );
     const height = Math.trunc(
-      opts.millimeterPerMillivolt * PixelsPerMm * waveform.minMax * 2 * leads
+      opts.millimeterPerMillivolt * PixelsPerMm * Math.ceil(waveform.minMax) * 2 * leads
     );
     const leadHeight = Math.trunc(height / leads);
     const svgWriter = new SvgWriter(width, height, RenderingDefaults.DefaultPaperBackgroundColor);
@@ -652,11 +652,17 @@ class DicomEcg {
     const ratioX = renderWidth / waveform.samples;
     const halfHeight = renderLeadHeight / 2.0;
 
-    let prevX = 0;
+    let prevX = 0.0;
     let prevY =
       leadIndex * renderLeadHeight +
       (halfHeight -
-        this._translate(lead.signal[0], waveform.min, waveform.max, -halfHeight, halfHeight));
+        this._translate(
+          lead.signal[0],
+          -Math.ceil(waveform.minMax),
+          Math.ceil(waveform.minMax),
+          -halfHeight,
+          halfHeight
+        ));
 
     const path = [];
     for (let i = 1; i < waveform.samples; i++) {
@@ -666,8 +672,8 @@ class DicomEcg {
         (halfHeight -
           this._translate(
             lead.signal[i],
-            -waveform.minMax,
-            waveform.minMax,
+            -Math.ceil(waveform.minMax),
+            Math.ceil(waveform.minMax),
             -halfHeight,
             halfHeight
           ));
