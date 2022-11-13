@@ -396,9 +396,53 @@ class DicomEcg {
           channelSourceSequence.length !== 0
         ) {
           channelSourceSequence.forEach((channelSourceSequenceItem) => {
-            if (channelSourceSequenceItem.CodeMeaning !== undefined) {
-              sources.push(channelSourceSequenceItem.CodeMeaning);
+            let title =
+              channelSourceSequenceItem.CodeMeaning !== undefined
+                ? channelSourceSequenceItem.CodeMeaning
+                : '';
+            const codeValue = channelSourceSequenceItem.CodeValue;
+            const schemeDesignator = channelSourceSequenceItem.CodingSchemeDesignator;
+            if (codeValue !== undefined && schemeDesignator !== undefined) {
+              if (schemeDesignator === 'MDC') {
+                const mdcCodeTitle = [
+                  { code: '2:1', title: 'Lead I' },
+                  { code: '2:2', title: 'Lead II' },
+                  { code: '2:61', title: 'Lead III' },
+                  { code: '2:62', title: 'Lead aVR' },
+                  { code: '2:63', title: 'Lead aVL' },
+                  { code: '2:64', title: 'Lead aVF' },
+                  { code: '2:3', title: 'Lead V1' },
+                  { code: '2:4', title: 'Lead V2' },
+                  { code: '2:5', title: 'Lead V3' },
+                  { code: '2:6', title: 'Lead V4' },
+                  { code: '2:7', title: 'Lead V5' },
+                  { code: '2:8', title: 'Lead V6' },
+                ].find((i) => i.code === codeValue);
+                if (mdcCodeTitle !== undefined) {
+                  title = mdcCodeTitle.title;
+                }
+              } else if (schemeDesignator === 'SCPECG') {
+                const scpEcgCodeTitle = [
+                  { code: '5.6.3-9-1', title: 'Lead I' },
+                  { code: '5.6.3-9-2', title: 'Lead II' },
+                  { code: '5.6.3-9-61', title: 'Lead III' },
+                  { code: '5.6.3-9-62', title: 'Lead aVR' },
+                  { code: '5.6.3-9-63', title: 'Lead aVL' },
+                  { code: '5.6.3-9-64', title: 'Lead aVF' },
+                  { code: '5.6.3-9-3', title: 'Lead V1' },
+                  { code: '5.6.3-9-4', title: 'Lead V2' },
+                  { code: '5.6.3-9-5', title: 'Lead V3' },
+                  { code: '5.6.3-9-6', title: 'Lead V4' },
+                  { code: '5.6.3-9-7', title: 'Lead V5' },
+                  { code: '5.6.3-9-8', title: 'Lead V6' },
+                ].find((i) => i.code === codeValue);
+                if (scpEcgCodeTitle !== undefined) {
+                  title = scpEcgCodeTitle.title;
+                }
+              }
             }
+
+            sources.push(title);
           });
         }
       }
@@ -715,7 +759,7 @@ class DicomEcg {
     svgWriter.text(
       2.0,
       leadIndex * renderLeadHeight + 10,
-      lead.source ? lead.source.replace(/[^a-zA-Z ]/g, '') : '',
+      lead.source ? lead.source.replace(/[^a-zA-Z0-9_ ]/g, '') : '',
       RenderingDefaults.DefaultTextColor,
       10,
       'bold'

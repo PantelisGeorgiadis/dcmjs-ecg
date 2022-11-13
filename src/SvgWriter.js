@@ -20,13 +20,14 @@ class SvgWriter {
       throw new Error('Height should be provided');
     }
     backgroundColor = backgroundColor || { r: 255, g: 255, b: 255, a: 255 };
+    const backgroundColorAndOpacity = this._rgbaToRgbHexAndOpacity(backgroundColor);
     this.svg = [
       '<?xml version="1.0" encoding="UTF-8" standalone="no"?>',
       '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">',
       `<svg viewBox="0 0 ${this._fixDecimal(width)} ${this._fixDecimal(
         height
       )}" xmlns="http://www.w3.org/2000/svg">`,
-      `<rect width="100%" height="100%" fill="rgba(${backgroundColor.r}, ${backgroundColor.g}, ${backgroundColor.b}, ${backgroundColor.a})"/>`,
+      `<rect width="100%" height="100%" fill="${backgroundColorAndOpacity.color}" fill-opacity="${backgroundColorAndOpacity.opacity}"/>`,
     ];
   }
 
@@ -47,12 +48,13 @@ class SvgWriter {
   line(x1, y1, x2, y2, lineColor, lineWidth) {
     lineColor = lineColor || { r: 0, g: 0, b: 0, a: 255 };
     lineWidth = lineWidth || 1;
+    const lineColorAndOpacity = this._rgbaToRgbHexAndOpacity(lineColor);
     this.svg.push(
       `<line x1="${this._fixDecimal(x1)}" y1="${this._fixDecimal(y1)}" x2="${this._fixDecimal(
         x2
-      )}" y2="${this._fixDecimal(y2)}" stroke="rgba(${lineColor.r}, ${lineColor.g}, ${
-        lineColor.b
-      }, ${lineColor.a})" stroke-width="${lineWidth}"/>`
+      )}" y2="${this._fixDecimal(y2)}" stroke="${lineColorAndOpacity.color}" stroke-opacity="${
+        lineColorAndOpacity.opacity
+      }" stroke-width="${lineWidth}"/>`
     );
   }
 
@@ -75,6 +77,7 @@ class SvgWriter {
     lineJoin = lineJoin || 'round';
     lineCap = lineCap || 'round';
 
+    const pathColorAndOpacity = this._rgbaToRgbHexAndOpacity(lineColor);
     const pathArray = Array.isArray(path) ? path : [path];
     const pathData = [];
     let lastX = undefined;
@@ -95,11 +98,9 @@ class SvgWriter {
     });
 
     this.svg.push(
-      `<path d="${pathData.join(' ')}" stroke="rgba(${lineColor.r}, ${lineColor.g}, ${
-        lineColor.b
-      }, ${
-        lineColor.a
-      })" stroke-width="${lineWidth}" stroke-linejoin="${lineJoin}" stroke-linecap="${lineCap}" fill="none"/>`
+      `<path d="${pathData.join(' ')}" stroke="${pathColorAndOpacity.color}" stroke-opacity="${
+        pathColorAndOpacity.opacity
+      }" stroke-width="${lineWidth}" stroke-linejoin="${lineJoin}" stroke-linecap="${lineCap}" fill="none" fill-opacity="none"/>`
     );
   }
 
@@ -126,14 +127,16 @@ class SvgWriter {
     fillColor = fillColor || { r: 0, g: 0, b: 0, a: 255 };
     lineColor = lineColor || { r: 0, g: 0, b: 0, a: 255 };
     lineWidth = lineWidth || 1;
+    const fillColorAndOpacity = this._rgbaToRgbHexAndOpacity(fillColor);
+    const lineColorAndOpacity = this._rgbaToRgbHexAndOpacity(lineColor);
     this.svg.push(
       `<rect x="${this._fixDecimal(x)}" y="${this._fixDecimal(y)}" width="${this._fixDecimal(
         width
-      )}" height="${this._fixDecimal(height)}" fill="rgba(${fillColor.r}, ${fillColor.g}, ${
-        fillColor.b
-      }, ${fillColor.a})" stroke="rgba(${lineColor.r}, ${lineColor.g}, ${lineColor.b}, ${
-        lineColor.a
-      })" stroke-width="${lineWidth}"/>`
+      )}" height="${this._fixDecimal(height)}" fill="${fillColorAndOpacity.color}" fill-opacity="${
+        fillColorAndOpacity.opacity
+      }" stroke="${lineColorAndOpacity.color}" stroke-opacity="${
+        lineColorAndOpacity.opacity
+      }" stroke-width="${lineWidth}"/>`
     );
   }
 
@@ -155,12 +158,13 @@ class SvgWriter {
     fontColor = fontColor || { r: 0, g: 0, b: 0, a: 255 };
     fontSize = fontSize || 1;
     fontWeight = fontWeight || 'normal';
+    const fontColorAndOpacity = this._rgbaToRgbHexAndOpacity(fontColor);
     this.svg.push(
       `<text x="${this._fixDecimal(x)}" y="${this._fixDecimal(
         y
-      )}" font-size="${fontSize}" font-weight="${fontWeight}" fill="rgba(${fontColor.r}, ${
-        fontColor.g
-      }, ${fontColor.b}, ${fontColor.a})">${text}</text>`
+      )}" font-size="${fontSize}" font-weight="${fontWeight}" fill="${
+        fontColorAndOpacity.color
+      }" fill-opacity="${fontColorAndOpacity.opacity}">${text}</text>`
     );
   }
 
@@ -180,10 +184,32 @@ class SvgWriter {
    * @method
    * @private
    * @param {number} number - Number to fix.
+   * @param {number} decimalPlaces - Number of decimal places.
    * @returns {number} The fixed number.
    */
-  _fixDecimal(number) {
-    return Number.isInteger(number) ? number : number.toFixed(2);
+  _fixDecimal(number, decimalPlaces) {
+    decimalPlaces = decimalPlaces || 2;
+    return Number.isInteger(number) ? number : number.toFixed(decimalPlaces);
+  }
+
+  /**
+   * Translates an RGBA color object to an RGB hex color string and opacity.
+   * @method
+   * @private
+   * @param {Object} rgba - RGBA color object.
+   * @param {number} [rgba.r] - Red.
+   * @param {number} [rgba.g] - Green.
+   * @param {number} [rgba.b] - Blue.
+   * @param {number} [rgba.a] - Alpha.
+   * @returns {Object} ret Returned hex color code and opacity.
+   * @returns {string} ret.color Returned hex color code.
+   * @returns {number} ret.opacity Returned opacity.
+   */
+  _rgbaToRgbHexAndOpacity(rgba) {
+    return {
+      color: '#' + ((1 << 24) | (rgba.r << 16) | (rgba.g << 8) | rgba.b).toString(16).slice(1),
+      opacity: this._fixDecimal(rgba.a / 0xff, 1),
+    };
   }
   //#endregion
 }

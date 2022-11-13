@@ -35,7 +35,8 @@ describe('SvgWriter', () => {
       expect(result.svg.rect.length).to.be.eq(1);
       expect(result.svg.rect[0].$.width).to.be.eq('100%');
       expect(result.svg.rect[0].$.height).to.be.eq('100%');
-      expect(result.svg.rect[0].$.fill).to.be.eq('rgba(50, 60, 70, 80)');
+      expect(result.svg.rect[0].$.fill).to.be.eq('#323c46');
+      expect(result.svg.rect[0].$['fill-opacity']).to.be.eq('0.3');
     });
   });
 
@@ -54,21 +55,24 @@ describe('SvgWriter', () => {
       expect(result.svg.line[0].$.y1).to.be.eq('20');
       expect(result.svg.line[0].$.x2).to.be.eq('30');
       expect(result.svg.line[0].$.y2).to.be.eq('40');
-      expect(result.svg.line[0].$.stroke).to.be.eq('rgba(50, 60, 70, 80)');
+      expect(result.svg.line[0].$.stroke).to.be.eq('#323c46');
+      expect(result.svg.line[0].$['stroke-opacity']).to.be.eq('0.3');
       expect(result.svg.line[0].$['stroke-width']).to.be.eq('90');
 
       expect(result.svg.line[1].$.x1).to.be.eq('100');
       expect(result.svg.line[1].$.y1).to.be.eq('200');
       expect(result.svg.line[1].$.x2).to.be.eq('300');
       expect(result.svg.line[1].$.y2).to.be.eq('400');
-      expect(result.svg.line[1].$.stroke).to.be.eq('rgba(5, 6, 7, 8)');
+      expect(result.svg.line[1].$.stroke).to.be.eq('#050607');
+      expect(result.svg.line[1].$['stroke-opacity']).to.be.eq('0.0');
       expect(result.svg.line[1].$['stroke-width']).to.be.eq('9');
 
       expect(result.svg.line[2].$.x1).to.be.eq('1');
       expect(result.svg.line[2].$.y1).to.be.eq('2');
       expect(result.svg.line[2].$.x2).to.be.eq('3');
       expect(result.svg.line[2].$.y2).to.be.eq('4');
-      expect(result.svg.line[2].$.stroke).to.be.eq('rgba(0, 0, 0, 255)');
+      expect(result.svg.line[2].$.stroke).to.be.eq('#000000');
+      expect(result.svg.line[2].$['stroke-opacity']).to.be.eq('1');
       expect(result.svg.line[2].$['stroke-width']).to.be.eq('1');
     });
   });
@@ -95,16 +99,25 @@ describe('SvgWriter', () => {
 
       expect(result.svg.path.length).to.be.eq(3);
       expect(result.svg.path[0].$.d).to.be.eq('M 10 20 L 30 40 M 40 30 L 20 10');
-      expect(result.svg.path[0].$.stroke).to.be.eq('rgba(50, 60, 70, 80)');
+      expect(result.svg.path[0].$.stroke).to.be.eq('#323c46');
+      expect(result.svg.path[0].$['stroke-opacity']).to.be.eq('0.3');
       expect(result.svg.path[0].$['stroke-width']).to.be.eq('90');
+      expect(result.svg.path[0].$.fill).to.be.eq('none');
+      expect(result.svg.path[0].$['fill-opacity']).to.be.eq('none');
 
       expect(result.svg.path[1].$.d).to.be.eq('M 10 20 L 30 40');
-      expect(result.svg.path[1].$.stroke).to.be.eq('rgba(0, 0, 0, 255)');
+      expect(result.svg.path[1].$.stroke).to.be.eq('#000000');
+      expect(result.svg.path[1].$['stroke-opacity']).to.be.eq('1');
       expect(result.svg.path[1].$['stroke-width']).to.be.eq('1');
+      expect(result.svg.path[1].$.fill).to.be.eq('none');
+      expect(result.svg.path[1].$['fill-opacity']).to.be.eq('none');
 
       expect(result.svg.path[2].$.d).to.be.eq('M 10 20 L 30 40 L 20 10');
-      expect(result.svg.path[2].$.stroke).to.be.eq('rgba(0, 0, 0, 255)');
+      expect(result.svg.path[2].$.stroke).to.be.eq('#000000');
+      expect(result.svg.path[2].$['stroke-opacity']).to.be.eq('1');
       expect(result.svg.path[2].$['stroke-width']).to.be.eq('1');
+      expect(result.svg.path[2].$.fill).to.be.eq('none');
+      expect(result.svg.path[2].$['fill-opacity']).to.be.eq('none');
     });
   });
 
@@ -130,15 +143,18 @@ describe('SvgWriter', () => {
       expect(result.svg.rect[1].$.y).to.be.eq('20');
       expect(result.svg.rect[1].$.width).to.be.eq('30');
       expect(result.svg.rect[1].$.height).to.be.eq('40');
-      expect(result.svg.rect[1].$.fill).to.be.eq('rgba(50, 60, 70, 80)');
-      expect(result.svg.rect[1].$.stroke).to.be.eq('rgba(90, 100, 110, 120)');
+      expect(result.svg.rect[1].$.fill).to.be.eq('#323c46');
+      expect(result.svg.rect[1].$['fill-opacity']).to.be.eq('0.3');
+      expect(result.svg.rect[1].$.stroke).to.be.eq('#5a646e');
+      expect(result.svg.rect[1].$['stroke-opacity']).to.be.eq('0.5');
       expect(result.svg.rect[1].$['stroke-width']).to.be.eq('130');
 
       expect(result.svg.rect[2].$.x).to.be.eq('1');
       expect(result.svg.rect[2].$.y).to.be.eq('2');
       expect(result.svg.rect[2].$.width).to.be.eq('3');
       expect(result.svg.rect[2].$.height).to.be.eq('4');
-      expect(result.svg.rect[2].$.stroke).to.be.eq('rgba(0, 0, 0, 255)');
+      expect(result.svg.rect[2].$.stroke).to.be.eq('#000000');
+      expect(result.svg.rect[2].$['stroke-opacity']).to.be.eq('1');
       expect(result.svg.rect[2].$['stroke-width']).to.be.eq('1');
     });
   });
@@ -155,14 +171,16 @@ describe('SvgWriter', () => {
       expect(result.svg.text.length).to.be.eq(2);
       expect(result.svg.text[0].$.x).to.be.eq('10');
       expect(result.svg.text[0].$.y).to.be.eq('20');
-      expect(result.svg.text[0].$.fill).to.be.eq('rgba(30, 40, 50, 60)');
+      expect(result.svg.text[0].$.fill).to.be.eq('#1e2832');
+      expect(result.svg.text[0].$['fill-opacity']).to.be.eq('0.2');
       expect(result.svg.text[0].$['font-size']).to.be.eq('70');
       expect(result.svg.text[0].$['font-weight']).to.be.eq('bold');
       expect(result.svg.text[0]._).to.be.eq('Hello');
 
       expect(result.svg.text[1].$.x).to.be.eq('100');
       expect(result.svg.text[1].$.y).to.be.eq('100');
-      expect(result.svg.text[1].$.fill).to.be.eq('rgba(0, 0, 0, 255)');
+      expect(result.svg.text[1].$.fill).to.be.eq('#000000');
+      expect(result.svg.text[1].$['fill-opacity']).to.be.eq('1');
       expect(result.svg.text[1].$['font-size']).to.be.eq('1');
       expect(result.svg.text[1].$['font-weight']).to.be.eq('normal');
       expect(result.svg.text[1]._).to.be.eq('Hello!');

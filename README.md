@@ -35,10 +35,10 @@ const ecg = new DicomEcg(arrayBuffer);
 
 // Create rendering options.
 const renderingOpts = {
-  // Optionally provide the render speed in millimeter per second.
+  // Optionally provide the rendering speed in millimeter per second.
   // If not provided, the default value of 25 millimeter per second is used.
   millimeterPerSecond: 25.0,
-  // Optionally provide the render amplitude in millimeter per millivolt.
+  // Optionally provide the rendering amplitude in millimeter per millivolt.
   // If not provided, the default value of 5 millimeter per millivolt is used.
   millimeterPerMillivolt: 5.0,
   // Optionally apply a butterworth low pass filter with 40Hz cut off frequency.
