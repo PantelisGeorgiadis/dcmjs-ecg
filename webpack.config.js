@@ -7,7 +7,6 @@ const pkg = require('./package.json');
 const rootPath = process.cwd();
 const context = path.join(rootPath, 'src');
 const examplesPath = path.join(rootPath, 'examples');
-const wasmPath = path.join(rootPath, 'wasm');
 const outputPath = path.join(rootPath, 'build');
 const filename = path.parse(pkg.main).base;
 

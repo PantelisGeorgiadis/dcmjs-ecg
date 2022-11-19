@@ -321,6 +321,7 @@ class DicomEcg {
         waveformSequenceItem.NumberOfWaveformSamples / waveformSequenceItem.SamplingFrequency,
     };
     this._calculateLeads(waveform, opts);
+    this._sortLeads(waveform);
 
     return waveform;
   }
@@ -400,49 +401,44 @@ class DicomEcg {
               channelSourceSequenceItem.CodeMeaning !== undefined
                 ? channelSourceSequenceItem.CodeMeaning
                 : '';
-            const codeValue = channelSourceSequenceItem.CodeValue;
+            let codeValue = channelSourceSequenceItem.CodeValue;
             const schemeDesignator = channelSourceSequenceItem.CodingSchemeDesignator;
-            if (codeValue !== undefined && schemeDesignator !== undefined) {
+            if (!title && codeValue !== undefined && schemeDesignator !== undefined) {
+              codeValue = codeValue.replace(/[^0-9-:.]/g, '');
+              const mdcScpEcgCodeTitles = [
+                { mdcCode: '2:1', scpEcgCode: '5.6.3-9-1', title: 'I' },
+                { mdcCode: '2:2', scpEcgCode: '5.6.3-9-2', title: 'II' },
+                { mdcCode: '2:61', scpEcgCode: '5.6.3-9-61', title: 'III' },
+                { mdcCode: '2:62', scpEcgCode: '5.6.3-9-62', title: 'aVR' },
+                { mdcCode: '2:63', scpEcgCode: '5.6.3-9-63', title: 'aVL' },
+                { mdcCode: '2:64', scpEcgCode: '5.6.3-9-64', title: 'aVF' },
+                { mdcCode: '2:3', scpEcgCode: '5.6.3-9-3', title: 'V1' },
+                { mdcCode: '2:4', scpEcgCode: '5.6.3-9-4', title: 'V2' },
+                { mdcCode: '2:5', scpEcgCode: '5.6.3-9-5', title: 'V3' },
+                { mdcCode: '2:6', scpEcgCode: '5.6.3-9-6', title: 'V4' },
+                { mdcCode: '2:7', scpEcgCode: '5.6.3-9-7', title: 'V5' },
+                { mdcCode: '2:8', scpEcgCode: '5.6.3-9-8', title: 'V6' },
+              ];
               if (schemeDesignator === 'MDC') {
-                const mdcCodeTitle = [
-                  { code: '2:1', title: 'Lead I' },
-                  { code: '2:2', title: 'Lead II' },
-                  { code: '2:61', title: 'Lead III' },
-                  { code: '2:62', title: 'Lead aVR' },
-                  { code: '2:63', title: 'Lead aVL' },
-                  { code: '2:64', title: 'Lead aVF' },
-                  { code: '2:3', title: 'Lead V1' },
-                  { code: '2:4', title: 'Lead V2' },
-                  { code: '2:5', title: 'Lead V3' },
-                  { code: '2:6', title: 'Lead V4' },
-                  { code: '2:7', title: 'Lead V5' },
-                  { code: '2:8', title: 'Lead V6' },
-                ].find((i) => i.code === codeValue);
+                const mdcCodeTitle = mdcScpEcgCodeTitles.find((i) => i.mdcCode === codeValue);
                 if (mdcCodeTitle !== undefined) {
                   title = mdcCodeTitle.title;
                 }
               } else if (schemeDesignator === 'SCPECG') {
-                const scpEcgCodeTitle = [
-                  { code: '5.6.3-9-1', title: 'Lead I' },
-                  { code: '5.6.3-9-2', title: 'Lead II' },
-                  { code: '5.6.3-9-61', title: 'Lead III' },
-                  { code: '5.6.3-9-62', title: 'Lead aVR' },
-                  { code: '5.6.3-9-63', title: 'Lead aVL' },
-                  { code: '5.6.3-9-64', title: 'Lead aVF' },
-                  { code: '5.6.3-9-3', title: 'Lead V1' },
-                  { code: '5.6.3-9-4', title: 'Lead V2' },
-                  { code: '5.6.3-9-5', title: 'Lead V3' },
-                  { code: '5.6.3-9-6', title: 'Lead V4' },
-                  { code: '5.6.3-9-7', title: 'Lead V5' },
-                  { code: '5.6.3-9-8', title: 'Lead V6' },
-                ].find((i) => i.code === codeValue);
+                const scpEcgCodeTitle = mdcScpEcgCodeTitles.find((i) => i.scpEcgCode === codeValue);
                 if (scpEcgCodeTitle !== undefined) {
                   title = scpEcgCodeTitle.title;
                 }
               }
             }
 
-            sources.push(title);
+            title = title ? title.replace(/[^a-zA-Z0-9_ ]/g, '') : '';
+            sources.push(
+              title
+                .replace(/lead/i, '')
+                .replace(/\(?einthoven\)?/i, '')
+                .trim()
+            );
           });
         }
       }
@@ -479,15 +475,17 @@ class DicomEcg {
     if (opts.applyLowPassFilter === true) {
       const cutoffFrequency = 40.0;
       for (let i = 0; i < channels; i++) {
-        this._lowPassFilter(signals[i], cutoffFrequency, waveform.samplingFrequency, 1);
+        this._lowPassFilter(signals[i], cutoffFrequency, waveform.samplingFrequency);
       }
     }
 
     // Convert to millivolts
-    const millivolts = { uV: 1000.0, mV: 1.0 };
-    for (let i = 0; i < channels; i++) {
-      for (let j = 0; j < signals[i].length; j++) {
-        signals[i][j] = signals[i][j] / millivolts[units[i]];
+    if (units.length === channels) {
+      const millivolts = { uV: 1000.0, mV: 1.0 };
+      for (let i = 0; i < channels; i++) {
+        for (let j = 0; j < signals[i].length; j++) {
+          signals[i][j] = signals[i][j] / millivolts[units[i]];
+        }
       }
     }
 
@@ -506,6 +504,21 @@ class DicomEcg {
       Math.abs(Math.min(...waveform.leads.map((lead) => lead.min))),
       Math.abs(Math.max(...waveform.leads.map((lead) => lead.max)))
     );
+  }
+
+  /**
+   * Sorts waveform leads based on source.
+   * @method
+   * @private
+   * @param {Object} waveform - Waveform.
+   */
+  _sortLeads(waveform) {
+    const order = ['I', 'II', 'III', 'aVR', 'aVL', 'aVF', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6'];
+    waveform.leads.sort((a, b) => {
+      const index1 = order.indexOf(a.source);
+      const index2 = order.indexOf(b.source);
+      return (index1 > -1 ? index1 : Infinity) - (index2 > -1 ? index2 : Infinity);
+    });
   }
 
   /**
@@ -759,7 +772,7 @@ class DicomEcg {
     svgWriter.text(
       2.0,
       leadIndex * renderLeadHeight + 10,
-      lead.source ? lead.source.replace(/[^a-zA-Z0-9_ ]/g, '') : '',
+      lead.source,
       RenderingDefaults.DefaultTextColor,
       10,
       'bold'
