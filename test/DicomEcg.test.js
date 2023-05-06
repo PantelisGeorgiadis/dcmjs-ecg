@@ -1,4 +1,4 @@
-const DicomEcg = require('../src/DicomEcg');
+const DicomEcg = require('./../src/DicomEcg');
 
 const xml2js = require('xml2js');
 const parser = new xml2js.Parser();
@@ -153,7 +153,13 @@ describe('DicomEcg', () => {
       },
       '1.2.840.10008.1.2'
     );
-    const ret = ecg.render();
+    const ret = ecg.render({
+      speed: 20,
+      amplitude: 10,
+      // Deprecated: Used here to test the deprecation warning
+      millimeterPerSecond: 20,
+      millimeterPerMillivolt: 10,
+    });
 
     expect(ret.info.find((i) => i.key === 'QRS Duration').value).to.be.eq('120');
     expect(ret.info.find((i) => i.key === 'Sampling Frequency').value).to.be.eq(2);

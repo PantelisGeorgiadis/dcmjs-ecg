@@ -49,8 +49,8 @@ Object.freeze(PixelsPerMm);
  * @constant {Object}
  */
 const RenderingDefaults = {
-  DefaultMillimeterPerSecond: 25.0,
-  DefaultMillimeterPerMillivolt: 5.0,
+  DefaultSpeed: 25.0,
+  DefaultAmplitude: 5.0,
   DefaultPaperBackgroundColor: { r: 0xff, g: 0xff, b: 0xff, a: 0xff },
   DefaultGridBackgroundColor: { r: 0xd2, g: 0xd2, b: 0xd2, a: 0xff },
   DefaultGridForegroundColor: { r: 0xe3, g: 0x45, b: 0x38, a: 0xaf },
@@ -150,20 +150,29 @@ class DicomEcg {
    * Renders the ECG.
    * @method
    * @param {Object} [opts] - Rendering options.
-   * @param {number} [opts.millimeterPerSecond] - Waveform render speed in millimeter per second.
-   * @param {number} [opts.millimeterPerMillivolt] - Waveform render amplitude in millimeter per millivolt.
-   * @param {boolean} [opts.applyLowPassFilter] - Apply a butterworth low pass filter with 40Hz cut off frequency.
+   * @param {number} [opts.speed] - Waveform render speed in millimeter per second.
+   * @param {number} [opts.amplitude] - Waveform render amplitude in millimeter per millivolt.
+   * @param {number} [opts.millimeterPerSecond] - Deprecated: Waveform render speed in millimeter per second. Please use speed instead.
+   * @param {number} [opts.millimeterPerMillivolt] - Deprecated: Waveform render amplitude in millimeter per millivolt. Please use amplitude instead.
+   * @param {boolean} [opts.applyLowPassFilter] - Apply a Butterworth low pass filter with 40Hz cut off frequency.
    * @returns {Object} result Rendering result object.
    * @returns {Array<Object>} result.info Array of waveform information.
    * @returns {string} result.svg Rendered waveform in SVG format.
    */
   render(opts) {
     opts = opts || {};
-    opts.millimeterPerSecond =
-      opts.millimeterPerSecond || RenderingDefaults.DefaultMillimeterPerSecond;
-    opts.millimeterPerMillivolt =
-      opts.millimeterPerMillivolt || RenderingDefaults.DefaultMillimeterPerMillivolt;
+    opts.speed = opts.speed || RenderingDefaults.DefaultSpeed;
+    opts.amplitude = opts.amplitude || RenderingDefaults.DefaultAmplitude;
     opts.applyLowPassFilter = opts.applyLowPassFilter || false;
+
+    if (opts.millimeterPerSecond) {
+      log.warn('`millimeterPerSecond` to be deprecated soon, please use `speed` instead.');
+      opts.speed = opts.millimeterPerSecond;
+    }
+    if (opts.millimeterPerMillivolt) {
+      log.warn('`millimeterPerMillivolt` to be deprecated soon, please use `amplitude` instead.');
+      opts.amplitude = opts.millimeterPerMillivolt;
+    }
 
     return this._render(opts);
   }
@@ -225,9 +234,9 @@ class DicomEcg {
    * @method
    * @private
    * @param {Object} [opts] - Rendering options.
-   * @param {number} [opts.millimeterPerSecond] - Waveform render speed in millimeter per second.
-   * @param {number} [opts.millimeterPerMillivolt] - Waveform render amplitude in millimeter per millivolt.
-   * @param {boolean} [opts.applyLowPassFilter] - Apply a butterworth low pass filter with 40Hz cut off frequency.
+   * @param {number} [opts.speed] - Waveform render speed in millimeter per second.
+   * @param {number} [opts.amplitude] - Waveform render amplitude in millimeter per millivolt.
+   * @param {boolean} [opts.applyLowPassFilter] - Apply a Butterworth low pass filter with 40Hz cut off frequency.
    * @returns {Object} result Rendering result object.
    * @returns {Array<Object>} result.info Array of waveform information.
    * @returns {string} result.svg Rendered waveform in SVG format.
@@ -258,16 +267,16 @@ class DicomEcg {
       value: waveform.samples / waveform.samplingFrequency,
       unit: 'sec',
     });
-    info.push({ key: 'Speed', value: opts.millimeterPerSecond, unit: 'mm/sec' });
-    info.push({ key: 'Amplitude', value: opts.millimeterPerMillivolt, unit: 'mm/mV' });
+    info.push({ key: 'Speed', value: opts.speed, unit: 'mm/sec' });
+    info.push({ key: 'Amplitude', value: opts.amplitude, unit: 'mm/mV' });
 
     // Render
     const leads = waveform.leads.length;
     const width = Math.trunc(
-      (opts.millimeterPerSecond * PixelsPerMm * waveform.samples) / waveform.samplingFrequency
+      (opts.speed * PixelsPerMm * waveform.samples) / waveform.samplingFrequency
     );
     const height = Math.trunc(
-      opts.millimeterPerMillivolt * PixelsPerMm * Math.ceil(waveform.minMax) * 2 * leads
+      opts.amplitude * PixelsPerMm * Math.ceil(waveform.minMax) * 2 * leads
     );
     const leadHeight = Math.trunc(height / leads);
     const svgWriter = new SvgWriter(width, height, RenderingDefaults.DefaultPaperBackgroundColor);
@@ -286,7 +295,7 @@ class DicomEcg {
    * @method
    * @private
    * @param {Object} [opts] - Rendering options.
-   * @param {boolean} [opts.applyLowPassFilter] - Apply a butterworth low pass filter with 40Hz cut off frequency.
+   * @param {boolean} [opts.applyLowPassFilter] - Apply a Butterworth low pass filter with 40Hz cut off frequency.
    * @returns {Object} Waveform.
    * @throws Error if WaveformSequence is empty and sample interpretation
    * or bits allocated values are not supported.
@@ -332,7 +341,7 @@ class DicomEcg {
    * @private
    * @param {Object} waveform - Waveform.
    * @param {Object} [opts] - Rendering options.
-   * @param {boolean} [opts.applyLowPassFilter] - Apply a butterworth low pass filter with 40Hz cut off frequency.
+   * @param {boolean} [opts.applyLowPassFilter] - Apply a Butterworth low pass filter with 40Hz cut off frequency.
    * @throws Error if waveform bits stored definition value is not supported.
    */
   _calculateLeads(waveform, opts) {

@@ -17,13 +17,21 @@ expectError(ecg.setElement(1, 2));
 expectType<string>(ecg.getTransferSyntaxUid());
 
 expectError(
-  ecg.render({ millimeterPerSecond: '10', millimeterPerMillivolt: '20', applyLowPassFilter: '1' })
+  ecg.render({
+    speed: '10',
+    amplitude: '20',
+    millimeterPerSecond: '10',
+    millimeterPerMillivolt: '20',
+    applyLowPassFilter: '1',
+  })
 );
 expectType<{
   info: Array<{ key: string; value: unknown; unit?: string }>;
   svg: string;
 }>(
   ecg.render({
+    speed: 10,
+    amplitude: 20,
     millimeterPerSecond: 10,
     millimeterPerMillivolt: 20,
     applyLowPassFilter: true,

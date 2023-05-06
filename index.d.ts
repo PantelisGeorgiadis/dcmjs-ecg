@@ -40,7 +40,15 @@ declare class DicomEcg {
    * Renders the ECG.
    */
   render(opts?: {
+    speed?: number;
+    amplitude?: number;
+    /**
+     * @deprecated Use {@link opts.speed} instead.
+     */
     millimeterPerSecond?: number;
+    /**
+     * @deprecated Use {@link opts.amplitude} instead.
+     */
     millimeterPerMillivolt?: number;
     applyLowPassFilter?: boolean;
   }): {

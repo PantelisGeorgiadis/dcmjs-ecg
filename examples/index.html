@@ -78,6 +78,8 @@
         const t0 = performance.now();
 
         const renderingResult = opts.ecg.render({
+          speed: 25,
+          amplitude: 5,
           applyLowPassFilter: true,
         });
 

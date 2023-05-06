@@ -19,7 +19,7 @@ class SvgWriter {
     if (!height) {
       throw new Error('Height should be provided');
     }
-    backgroundColor = backgroundColor || { r: 255, g: 255, b: 255, a: 255 };
+    backgroundColor = backgroundColor || { r: 0xff, g: 0xff, b: 0xff, a: 0xff };
     const backgroundColorAndOpacity = this._rgbaToRgbHexAndOpacity(backgroundColor);
     this.svg = [
       '<?xml version="1.0" encoding="UTF-8" standalone="no"?>',
@@ -46,7 +46,7 @@ class SvgWriter {
    * @param {number} [lineWidth] - Line width.
    */
   line(x1, y1, x2, y2, lineColor, lineWidth) {
-    lineColor = lineColor || { r: 0, g: 0, b: 0, a: 255 };
+    lineColor = lineColor || { r: 0x00, g: 0x00, b: 0x00, a: 0xff };
     lineWidth = lineWidth || 1;
     const lineColorAndOpacity = this._rgbaToRgbHexAndOpacity(lineColor);
     this.svg.push(
@@ -72,7 +72,7 @@ class SvgWriter {
    * @param {string} [lineCap] - Line cap style.
    */
   path(path, lineColor, lineWidth, lineJoin, lineCap) {
-    lineColor = lineColor || { r: 0, g: 0, b: 0, a: 255 };
+    lineColor = lineColor || { r: 0x00, g: 0x00, b: 0x00, a: 0xff };
     lineWidth = lineWidth || 1;
     lineJoin = lineJoin || 'round';
     lineCap = lineCap || 'round';
@@ -124,8 +124,8 @@ class SvgWriter {
    * @param {number} [lineWidth] - Line width.
    */
   rect(x, y, width, height, fillColor, lineColor, lineWidth) {
-    fillColor = fillColor || { r: 0, g: 0, b: 0, a: 255 };
-    lineColor = lineColor || { r: 0, g: 0, b: 0, a: 255 };
+    fillColor = fillColor || { r: 0x00, g: 0x00, b: 0x00, a: 0xff };
+    lineColor = lineColor || { r: 0x00, g: 0x00, b: 0x00, a: 0xff };
     lineWidth = lineWidth || 1;
     const fillColorAndOpacity = this._rgbaToRgbHexAndOpacity(fillColor);
     const lineColorAndOpacity = this._rgbaToRgbHexAndOpacity(lineColor);
@@ -155,7 +155,7 @@ class SvgWriter {
    * @param {string} [fontWeight] - Font weight.
    */
   text(x, y, text, fontColor, fontSize, fontWeight) {
-    fontColor = fontColor || { r: 0, g: 0, b: 0, a: 255 };
+    fontColor = fontColor || { r: 0x00, g: 0x00, b: 0x00, a: 0xff };
     fontSize = fontSize || 1;
     fontWeight = fontWeight || 'normal';
     const fontColorAndOpacity = this._rgbaToRgbHexAndOpacity(fontColor);
@@ -175,6 +175,7 @@ class SvgWriter {
    */
   toXmlString() {
     this.svg.push('</svg>');
+
     return this.svg.join('\n');
   }
 
@@ -189,6 +190,7 @@ class SvgWriter {
    */
   _fixDecimal(number, decimalPlaces) {
     decimalPlaces = decimalPlaces || 2;
+
     return Number.isInteger(number) ? number : number.toFixed(decimalPlaces);
   }
 

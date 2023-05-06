@@ -1,4 +1,4 @@
-const SvgWriter = require('../src/SvgWriter');
+const SvgWriter = require('./../src/SvgWriter');
 
 const xml2js = require('xml2js');
 const parser = new xml2js.Parser();
