@@ -1,6 +1,6 @@
 {
   "name": "dcmjs-ecg",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "DICOM electrocardiography (ECG) rendering for Node.js and browser using dcmjs",
   "main": "build/dcmjs-ecg.min.js",
   "module": "build/dcmjs-ecg.min.js",
@@ -24,7 +24,7 @@
     "test:browser": "karma start karma.config.js",
     "test:types": "tsd",
     "test": "npm run test:types && npm run test:node && npm run test:browser",
-    "lint": "eslint -c .eslintrc.json --fix src && prettier --tab-width 2 --single-quote true --print-width 100 --use-tabs false --write src/**/*.js test/**/*.js examples/**/*.{js,ts,html} *.ts"
+    "lint": "eslint -c .eslintrc.json --fix src && prettier --tab-width 2 --single-quote true --print-width 100 --use-tabs false --trailing-comma es5 --write src/**/*.js test/**/*.js examples/**/*.{js,ts,html} *.ts"
   },
   "repository": {
     "type": "git",
@@ -42,17 +42,17 @@
   },
   "homepage": "https://github.com/PantelisGeorgiadis/dcmjs-ecg",
   "dependencies": {
-    "dcmjs": "^0.29.6",
+    "dcmjs": "^0.29.9",
     "loglevel": "^1.8.1",
     "loglevel-plugin-prefix": "^0.8.4"
   },
   "devDependencies": {
     "browserify": "^17.0.0",
-    "c8": "^7.13.0",
-    "chai": "^4.3.7",
+    "c8": "^8.0.1",
+    "chai": "^4.3.8",
     "copy-webpack-plugin": "^11.0.0",
-    "docdash": "^2.0.1",
-    "eslint": "^8.39.0",
+    "docdash": "^2.0.2",
+    "eslint": "^8.48.0",
     "jsdoc": "^4.0.2",
     "karma": "^6.4.2",
     "karma-browserify": "^8.1.0",
@@ -62,15 +62,15 @@
     "karma-mocha-reporter": "^2.2.5",
     "mocha": "^10.2.0",
     "open-cli": "^7.2.0",
-    "prettier": "^2.8.8",
+    "prettier": "^3.0.3",
     "shx": "^0.3.4",
-    "terser-webpack-plugin": "^5.3.7",
+    "terser-webpack-plugin": "^5.3.9",
     "ts-node": "^10.9.1",
-    "tsd": "^0.28.1",
-    "typescript": "^5.0.4",
-    "webpack": "^5.82.0",
-    "webpack-cli": "^5.0.2",
-    "webpack-dev-server": "^4.13.3",
-    "xml2js": "^0.5.0"
+    "tsd": "^0.29.0",
+    "typescript": "^5.2.2",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1",
+    "xml2js": "^0.6.2"
   }
 }
