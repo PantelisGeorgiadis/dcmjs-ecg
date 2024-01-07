@@ -20,8 +20,6 @@ expectError(
   ecg.render({
     speed: '10',
     amplitude: '20',
-    millimeterPerSecond: '10',
-    millimeterPerMillivolt: '20',
     applyLowPassFilter: '1',
   })
 );
@@ -32,8 +30,6 @@ expectType<{
   ecg.render({
     speed: 10,
     amplitude: 20,
-    millimeterPerSecond: 10,
-    millimeterPerMillivolt: 20,
     applyLowPassFilter: true,
   })
 );

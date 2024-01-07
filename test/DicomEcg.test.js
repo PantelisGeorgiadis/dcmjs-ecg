@@ -6,6 +6,31 @@ const parser = new xml2js.Parser();
 const chai = require('chai');
 const expect = chai.expect;
 
+const PN_COMPONENT_DELIMITER = 0x3d;
+const VM_DELIMITER = 0x5c;
+
+function pnObjectToString(value) {
+  if (typeof value === 'string' || value instanceof String) {
+    return value;
+  }
+
+  const pnDelim = String.fromCharCode(PN_COMPONENT_DELIMITER);
+  if (!Array.isArray(value)) {
+    value = [value];
+  }
+  return value
+    .filter(Boolean)
+    .map(function (v) {
+      if (v === undefined || typeof v === 'string' || v instanceof String) {
+        return v;
+      }
+      return [v.Alphabetic ?? '', v.Ideographic ?? '', v.Phonetic ?? '']
+        .join(pnDelim)
+        .replace(new RegExp(`${pnDelim}*$`), '');
+    })
+    .join(String.fromCharCode(VM_DELIMITER));
+}
+
 describe('DicomEcg', () => {
   it('should correctly convert elements to a DicomEcg and back', () => {
     const patientName = 'JOHN^DOE';
@@ -25,7 +50,7 @@ describe('DicomEcg', () => {
     const dicomEcg1 = ecg1.getDenaturalizedDataset();
 
     const image2 = new DicomEcg(dicomEcg1, '1.2.840.10008.1.2');
-    expect(image2.getElement('PatientName')).to.be.eq(patientName);
+    expect(pnObjectToString(image2.getElement('PatientName'))).to.be.eq(patientName);
     expect(image2.getElement('PatientID')).to.be.eq(patientId);
     expect(image2.getElement('Modality')).to.be.eq(modality);
     expect(image2.getElement('Manufacturer')).to.be.eq('Unknown');
@@ -156,9 +181,6 @@ describe('DicomEcg', () => {
     const ret = ecg.render({
       speed: 20,
       amplitude: 10,
-      // Deprecated: Used here to test the deprecation warning
-      millimeterPerSecond: 20,
-      millimeterPerMillivolt: 10,
     });
 
     expect(ret.info.find((i) => i.key === 'QRS Duration').value).to.be.eq('120');

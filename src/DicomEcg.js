@@ -136,12 +136,20 @@ class DicomEcg {
   /**
    * Gets elements encoded in a DICOM dataset buffer.
    * @method
-   * @returns {ArrayBuffer} DICOM dataset.
+   * @param {Object} [writeOptions] - The write options to pass through to `DicomMessage.write()`.
+   * @param {Object} [nameMap] - Additional DICOM tags to recognize when denaturalizing the dataset.
+   * @returns {ArrayBuffer} DICOM dataset buffer.
    */
-  getDenaturalizedDataset() {
-    const denaturalizedDataset = DicomMetaDictionary.denaturalizeDataset(this.getElements());
+  getDenaturalizedDataset(writeOptions, nameMap) {
+    const denaturalizedDataset = nameMap
+      ? DicomMetaDictionary.denaturalizeDataset(this.getElements(), {
+          ...DicomMetaDictionary.nameMap,
+          ...nameMap,
+        })
+      : DicomMetaDictionary.denaturalizeDataset(this.getElements());
+
     const stream = new WriteBufferStream();
-    DicomMessage.write(denaturalizedDataset, stream, this.transferSyntaxUid, {});
+    DicomMessage.write(denaturalizedDataset, stream, this.transferSyntaxUid, writeOptions);
 
     return stream.getBuffer();
   }
@@ -152,8 +160,6 @@ class DicomEcg {
    * @param {Object} [opts] - Rendering options.
    * @param {number} [opts.speed] - Waveform render speed in millimeter per second.
    * @param {number} [opts.amplitude] - Waveform render amplitude in millimeter per millivolt.
-   * @param {number} [opts.millimeterPerSecond] - Deprecated: Waveform render speed in millimeter per second. Please use speed instead.
-   * @param {number} [opts.millimeterPerMillivolt] - Deprecated: Waveform render amplitude in millimeter per millivolt. Please use amplitude instead.
    * @param {boolean} [opts.applyLowPassFilter] - Apply a Butterworth low pass filter with 40Hz cut off frequency.
    * @returns {Object} result Rendering result object.
    * @returns {Array<Object>} result.info Array of waveform information.
@@ -164,15 +170,6 @@ class DicomEcg {
     opts.speed = opts.speed || RenderingDefaults.DefaultSpeed;
     opts.amplitude = opts.amplitude || RenderingDefaults.DefaultAmplitude;
     opts.applyLowPassFilter = opts.applyLowPassFilter || false;
-
-    if (opts.millimeterPerSecond) {
-      log.warn('`millimeterPerSecond` to be deprecated soon, please use `speed` instead.');
-      opts.speed = opts.millimeterPerSecond;
-    }
-    if (opts.millimeterPerMillivolt) {
-      log.warn('`millimeterPerMillivolt` to be deprecated soon, please use `amplitude` instead.');
-      opts.amplitude = opts.millimeterPerMillivolt;
-    }
 
     return this._render(opts);
   }

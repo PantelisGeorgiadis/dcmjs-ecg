@@ -34,24 +34,15 @@ declare class DicomEcg {
   /**
    * Gets elements encoded in a DICOM dataset buffer.
    */
-  getDenaturalizedDataset(): ArrayBuffer;
+  getDenaturalizedDataset(
+    writeOptions?: Record<string, unknown>,
+    nameMap?: Record<string, unknown>
+  ): ArrayBuffer;
 
   /**
    * Renders the ECG.
    */
-  render(opts?: {
-    speed?: number;
-    amplitude?: number;
-    /**
-     * @deprecated Use {@link opts.speed} instead.
-     */
-    millimeterPerSecond?: number;
-    /**
-     * @deprecated Use {@link opts.amplitude} instead.
-     */
-    millimeterPerMillivolt?: number;
-    applyLowPassFilter?: boolean;
-  }): {
+  render(opts?: { speed?: number; amplitude?: number; applyLowPassFilter?: boolean }): {
     info: Array<{ key: string; value: unknown; unit?: string }>;
     svg: string;
   };

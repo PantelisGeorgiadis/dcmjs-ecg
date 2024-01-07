@@ -38,11 +38,9 @@ const renderingOpts = {
   // Optionally provide the rendering speed in millimeter per second.
   // If not provided, the default value of 25 millimeter per second is used.
   speed: 25.0,
-  millimeterPerSecond: 25.0, // DEPRECATED: Please use speed instead.
   // Optionally provide the rendering amplitude in millimeter per millivolt.
   // If not provided, the default value of 5 millimeter per millivolt is used.
   amplitude: 5.0,
-  millimeterPerMillivolt: 5.0, // DEPRECATED: Please use amplitude instead.
   // Optionally apply a Butterworth low pass filter with 40Hz cut off frequency.
   // If not provided, the filter is not applied.
   applyLowPassFilter: false
