@@ -1,35 +1,13 @@
 const DicomEcg = require('./../src/DicomEcg');
 
+const dcmjs = require('dcmjs');
+const { dicomJson } = dcmjs.utilities;
+
 const xml2js = require('xml2js');
 const parser = new xml2js.Parser();
 
 const chai = require('chai');
 const expect = chai.expect;
-
-const PN_COMPONENT_DELIMITER = 0x3d;
-const VM_DELIMITER = 0x5c;
-
-function pnObjectToString(value) {
-  if (typeof value === 'string' || value instanceof String) {
-    return value;
-  }
-
-  const pnDelim = String.fromCharCode(PN_COMPONENT_DELIMITER);
-  if (!Array.isArray(value)) {
-    value = [value];
-  }
-  return value
-    .filter(Boolean)
-    .map(function (v) {
-      if (v === undefined || typeof v === 'string' || v instanceof String) {
-        return v;
-      }
-      return [v.Alphabetic ?? '', v.Ideographic ?? '', v.Phonetic ?? '']
-        .join(pnDelim)
-        .replace(new RegExp(`${pnDelim}*$`), '');
-    })
-    .join(String.fromCharCode(VM_DELIMITER));
-}
 
 describe('DicomEcg', () => {
   it('should correctly convert elements to a DicomEcg and back', () => {
@@ -50,7 +28,7 @@ describe('DicomEcg', () => {
     const dicomEcg1 = ecg1.getDenaturalizedDataset();
 
     const image2 = new DicomEcg(dicomEcg1, '1.2.840.10008.1.2');
-    expect(pnObjectToString(image2.getElement('PatientName'))).to.be.eq(patientName);
+    expect(dicomJson.pnObjectToString(image2.getElement('PatientName'))).to.be.eq(patientName);
     expect(image2.getElement('PatientID')).to.be.eq(patientId);
     expect(image2.getElement('Modality')).to.be.eq(modality);
     expect(image2.getElement('Manufacturer')).to.be.eq('Unknown');
