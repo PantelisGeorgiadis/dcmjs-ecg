@@ -1,4 +1,4 @@
-[![NPM version][npm-version-image]][npm-url] [![build][build-image]][build-url] [![MIT License][license-image]][license-url] 
+[![NPM version][npm-version-image]][npm-url] [![NPM downloads][npm-downloads-image]][npm-url] [![build][build-image]][build-url] [![MIT License][license-image]][license-url] 
 
 # dcmjs-ecg
 DICOM electrocardiography (ECG) rendering for Node.js and browser using Steve Pieper's [dcmjs][dcmjs-url] library.
@@ -66,6 +66,7 @@ dcmjs-ecg is released under the MIT License.
 
 [npm-url]: https://npmjs.org/package/dcmjs-ecg
 [npm-version-image]: https://img.shields.io/npm/v/dcmjs-ecg.svg?style=flat
+[npm-downloads-image]: http://img.shields.io/npm/dm/dcmjs-ecg.svg?style=flat
 
 [build-url]: https://github.com/PantelisGeorgiadis/dcmjs-ecg/actions/workflows/build.yml
 [build-image]: https://github.com/PantelisGeorgiadis/dcmjs-ecg/actions/workflows/build.yml/badge.svg?branch=master
