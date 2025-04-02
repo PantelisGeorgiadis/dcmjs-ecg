@@ -284,6 +284,9 @@ class DicomEcg {
       this._renderLeadTitle(svgWriter, waveform.leads[i], i, leadHeight);
     }
 
+    info.push({ key: 'Width', value: width });
+    info.push({ key: 'Height', value: height });
+
     return { svg: svgWriter.toXmlString(), info };
   }
 
