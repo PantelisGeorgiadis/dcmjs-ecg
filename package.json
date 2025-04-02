@@ -1,6 +1,6 @@
 {
   "name": "dcmjs-ecg",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "DICOM electrocardiography (ECG) rendering for Node.js and browser using dcmjs",
   "main": "build/dcmjs-ecg.min.js",
   "module": "build/dcmjs-ecg.min.js",
@@ -24,7 +24,7 @@
     "test:browser": "karma start karma.config.js",
     "test:types": "tsd",
     "test": "npm run test:types && npm run test:node && npm run test:browser",
-    "lint": "eslint -c .eslintrc.json --fix src && prettier --tab-width 2 --single-quote true --print-width 100 --use-tabs false --trailing-comma es5 --write src/**/*.js test/**/*.js examples/**/*.{js,ts,html} *.ts"
+    "lint": "eslint -c .eslintrc.json --fix src && prettier --config .prettierrc.json --write src/**/*.js test/**/*.js examples/**/*.{js,ts,html} *.ts"
   },
   "repository": {
     "type": "git",
@@ -42,14 +42,14 @@
   },
   "homepage": "https://github.com/PantelisGeorgiadis/dcmjs-ecg",
   "dependencies": {
-    "dcmjs": "^0.34.5",
+    "dcmjs": "^0.38.3",
     "loglevel": "^1.9.2",
     "loglevel-plugin-prefix": "^0.8.4"
   },
   "devDependencies": {
     "browserify": "^17.0.1",
-    "c8": "^9.0.0",
-    "chai": "^4.3.8",
+    "c8": "^9.1.0",
+    "chai": "^4.3.10",
     "copy-webpack-plugin": "^12.0.2",
     "docdash": "^2.0.2",
     "eslint": "^8.57.0",
@@ -60,17 +60,17 @@
     "karma-chrome-launcher": "^3.2.0",
     "karma-mocha": "^2.0.1",
     "karma-mocha-reporter": "^2.2.5",
-    "mocha": "^10.7.3",
+    "mocha": "^11.1.0",
     "open-cli": "^8.0.0",
-    "prettier": "^3.3.3",
-    "shx": "^0.3.4",
-    "terser-webpack-plugin": "^5.3.10",
+    "prettier": "^3.4.2",
+    "shx": "^0.3.3",
+    "terser-webpack-plugin": "^5.3.11",
     "ts-node": "^10.9.2",
     "tsd": "^0.31.2",
-    "typescript": "^5.6.3",
-    "webpack": "^5.95.0",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.1",
+    "typescript": "^5.7.3",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^4.15.2",
     "xml2js": "^0.6.2"
   }
 }

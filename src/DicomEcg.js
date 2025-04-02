@@ -237,7 +237,7 @@ class DicomEcg {
    * @returns {Object} result Rendering result object.
    * @returns {Array<Object>} result.info Array of waveform information.
    * @returns {string} result.svg Rendered waveform in SVG format.
-   * @throws Error if SOP class UID is not supported.
+   * @throws {Error} If SOP class UID is not supported.
    */
   _render(opts) {
     const sopClass = this.getElement('SOPClassUID');
@@ -297,7 +297,7 @@ class DicomEcg {
    * @param {Object} [opts] - Rendering options.
    * @param {boolean} [opts.applyLowPassFilter] - Apply a Butterworth low pass filter with 40Hz cut off frequency.
    * @returns {Object} Waveform.
-   * @throws Error if WaveformSequence is empty and sample interpretation
+   * @throws {Error} If WaveformSequence is empty and sample interpretation
    * or bits allocated values are not supported.
    */
   _extractWaveform(opts) {
@@ -342,7 +342,7 @@ class DicomEcg {
    * @param {Object} waveform - Waveform.
    * @param {Object} [opts] - Rendering options.
    * @param {boolean} [opts.applyLowPassFilter] - Apply a Butterworth low pass filter with 40Hz cut off frequency.
-   * @throws Error if waveform bits stored definition value is not supported.
+   * @throws {Error} If waveform bits stored definition value is not supported.
    */
   _calculateLeads(waveform, opts) {
     const channelDefinitionSequence = waveform.channelDefinitionSequence;

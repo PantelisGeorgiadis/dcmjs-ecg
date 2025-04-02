@@ -10,7 +10,7 @@ class SvgWriter {
    * @param {number} [backgroundColor.g] - Green.
    * @param {number} [backgroundColor.b] - Blue.
    * @param {number} [backgroundColor.a] - Alpha.
-   * @throws Error if width or height are not provided.
+   * @throws {Error} If width or height are not provided.
    */
   constructor(width, height, backgroundColor) {
     if (!width) {
