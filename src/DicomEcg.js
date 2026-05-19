@@ -310,12 +310,15 @@ class DicomEcg {
       throw new Error('WaveformSequence is empty');
     }
     const waveformSequenceItem = waveformSequence.find((o) => o);
-    if (waveformSequenceItem.WaveformSampleInterpretation !== 'SS') {
+    if (!['SS', 'SB', 'UB'].includes(waveformSequenceItem.WaveformSampleInterpretation)) {
       throw new Error(
         `Waveform sample interpretation is not supported [${waveformSequenceItem.WaveformSampleInterpretation}]`
       );
     }
-    if (waveformSequenceItem.WaveformBitsAllocated !== 16) {
+    if (
+      waveformSequenceItem.WaveformBitsAllocated !== 8 &&
+      waveformSequenceItem.WaveformBitsAllocated !== 16
+    ) {
       throw new Error(
         `Waveform bits allocated is not supported [${waveformSequenceItem.WaveformBitsAllocated}]`
       );
@@ -328,6 +331,8 @@ class DicomEcg {
       samplingFrequency: waveformSequenceItem.SamplingFrequency,
       duration:
         waveformSequenceItem.NumberOfWaveformSamples / waveformSequenceItem.SamplingFrequency,
+      bitsAllocated: waveformSequenceItem.WaveformBitsAllocated,
+      sampleInterpretation: waveformSequenceItem.WaveformSampleInterpretation,
     };
     this._calculateLeads(waveform, opts);
     this._sortLeads(waveform);
@@ -368,7 +373,10 @@ class DicomEcg {
     const sources = [];
     channelDefinitionSequence.forEach((channelDefinitionSequenceItem, i) => {
       if (channelDefinitionSequenceItem !== undefined) {
-        if (channelDefinitionSequenceItem.WaveformBitsStored !== 16) {
+        if (
+          channelDefinitionSequenceItem.WaveformBitsStored !== 8 &&
+          channelDefinitionSequenceItem.WaveformBitsStored !== 16
+        ) {
           throw new Error(
             `Waveform bits stored definition is not supported [${channelDefinitionSequenceItem.WaveformBitsStored}]`
           );
@@ -455,13 +463,29 @@ class DicomEcg {
 
     waveform.leads = [];
     const waveformDataBuffer = new Uint8Array(waveform.waveformData.find((o) => o));
-    const waveformData = new Int16Array(
-      new Uint16Array(
-        waveformDataBuffer.buffer,
-        waveformDataBuffer.byteOffset,
-        waveformDataBuffer.byteLength / Uint16Array.BYTES_PER_ELEMENT
-      )
-    );
+    let waveformData;
+    if (waveform.bitsAllocated === 8) {
+      waveformData =
+        waveform.sampleInterpretation === 'UB'
+          ? new Uint8Array(
+              waveformDataBuffer.buffer,
+              waveformDataBuffer.byteOffset,
+              waveformDataBuffer.byteLength
+            )
+          : new Int8Array(
+              waveformDataBuffer.buffer,
+              waveformDataBuffer.byteOffset,
+              waveformDataBuffer.byteLength
+            );
+    } else {
+      waveformData = new Int16Array(
+        new Uint16Array(
+          waveformDataBuffer.buffer,
+          waveformDataBuffer.byteOffset,
+          waveformDataBuffer.byteLength / Uint16Array.BYTES_PER_ELEMENT
+        )
+      );
+    }
 
     // Split to channels
     let signals = waveformData.reduce(
@@ -494,6 +518,13 @@ class DicomEcg {
       for (let i = 0; i < channels; i++) {
         for (let j = 0; j < signals[i].length; j++) {
           signals[i][j] = signals[i][j] / millivolts[units[i]];
+        }
+      }
+    } else if (units.length === 0) {
+      // No channel sensitivity units defined - treat raw counts as µV
+      for (let i = 0; i < channels; i++) {
+        for (let j = 0; j < signals[i].length; j++) {
+          signals[i][j] = signals[i][j] / 1000.0;
         }
       }
     }
